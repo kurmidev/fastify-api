@@ -1,0 +1,66 @@
+service: ll-DI-fastify-Serverless
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  stage: ${opt:stage}
+  deploymentMethod: direct
+  runtime: nodejs20.x
+  region: ap-south-1
+  memorySize: 2048 # optional, in MB, default is 1024
+  timeout: 20 # optional, in seconds, default is 6
+  environment:
+    secretsId: ${param:secretsId}
+    stage: ${opt:stage}
+    DATABASE_URL: mysql://chandraprakash-patel:PzV0Mk02Ou76@ll-rds-wr.liquiloans.com:3306/liquiloans
+    DB_NAME: liquiloans
+    DB_USER: chandraprakash-patel
+    DB_PASS: PzV0Mk02Ou76
+    DB_PORT: 3306
+    DB_HOST: ll-rds-wr.liquiloans.com
+    DB_TYPE: mysql
+    GLOBAL_API_KEY: testing
+  iamManagedPolicies:
+    - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+    - "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
+
+params: 
+  Uat:
+    eventBus: arn:aws:events:ap-south-1:838185623305:event-bus/ll-Uat
+    secretsId: Uat/ll-Backend
+    securityGroup: sg-0e5ae063eab580488
+    subnetids1: subnet-0c2fe30fd15655526
+    subnetids2: subnet-0ba48871dfd0e5c4b
+  Stg:
+    eventBus: arn:aws:events:ap-south-1:838185623305:event-bus/ll-Stg
+    secretsId: Staging/ll-Backend
+    securityGroup: sg-07031eaa9332ce9bb
+    subnetids1: subnet-06d8c1d8d6335dc0e
+    subnetids2: subnet-09c6f8b4b3cc9837b
+  Prod:
+    eventBus: arn:aws:events:ap-south-1:838185623305:event-bus/ll-Prod
+    secretsId: Prod/ll-Backend
+    securityGroup: sg-01513a2ef5cb4aa5a
+    subnetids1: subnet-05233be62a7b05c51
+    subnetids2: subnet-085e126e60fd3f3ed
+
+functions:
+  hello:
+    handler: dist/lambda.handler
+    vpc:
+      securityGroupIds:
+        - ${param:securityGroup}
+      subnetIds:
+        - ${param:subnetids1}
+        - ${param:subnetids2}
+    name: ll-${opt:stage, self:provider.stage}-${self:service}
+    events:
+      - httpApi: '*'
+package:
+  patterns:
+    - node_modules/**
+    - '!src/**'
+    - '!test/**'
+    - '.env*'
+    - '!tsconfig*'
+    - '!README.md'

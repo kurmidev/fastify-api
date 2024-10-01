@@ -4,14 +4,15 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -w",
-    "devTest": "tsnd --respawn --transpile-only --exit-child src/app.ts",
-    "dev":"npm tsx src/app.ts",
-    "start": "node src/app.ts"
+    "devTest": "tsnd --respawn --transpile-only --exit-child src/index.ts",
+    "dev": "npm tsx src/index.ts",
+    "start": "node src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fastify/aws-lambda": "^5.0.0",
     "@fastify/type-provider-typebox": "^5.0.0",
     "@sinclair/typebox": "^0.33.12",
     "fastify": "^4.28.1",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
+    "serverless-offline": "^14.3.2",
     "tsx": "^4.19.1"
   }
 }

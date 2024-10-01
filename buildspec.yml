@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm install -g serverless@3.38
+      - npm install
+
+  pre_build:
+    commands:
+      - echo "Compiling TypeScript"
+      - npm run build
+      - npm prune --production
+
+  # build:
+  #   commands:
+  #     - |
+  #       if [ "$DEPLOYMENT_GROUP_NAME" = "Uat" ]; then
+  #         serverless package --package=./dist --stage=Uat
+  #       elif [ "$DEPLOYMENT_GROUP_NAME" = "Stg" ]; then
+  #         serverless plugin install -n serverless-plugin-typescript --stage=Stg
+  #       elif [ "$DEPLOYMENT_GROUP_NAME" = "Prod" ]; then
+  #         serverless plugin install -n serverless-plugin-typescript --stage=Prod
+  #       fi
+
+  post_build:
+    commands:
+      - |
+        if [ "$DEPLOYMENT_GROUP_NAME" = "Uat" ]; then
+          serverless deploy --stage=Uat
+          echo "Build complete"
+        elif [ "$DEPLOYMENT_GROUP_NAME" = "Stg" ]; then
+          serverless deploy --stage=Stg
+          echo "Build complete"
+        elif [ "$DEPLOYMENT_GROUP_NAME" = "Prod" ]; then
+          serverless deploy --stage=Prod
+          echo "Build complete"
+        fi
